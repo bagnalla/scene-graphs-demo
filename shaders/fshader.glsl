@@ -36,7 +36,7 @@ void main()
 			vec4 bump = texture2D(BumpTex, fTextureCoord);
 			bump = normalize(2.0*bump-1.0);
 
-			vec3 up = vec3(0.0, 0.0, -1.0);
+			vec3 up = vec3(0.0, 0.0, 1.0);
 			vec3 v = cross(rawN, up);
 			float s = max(0.5, length(v));
 			float c = dot(rawN, up);
@@ -45,6 +45,7 @@ void main()
 
 			bump.xyz = R * bump.xyz;
 			bump = normalRotation * bump;
+			//NN = bump.xyz;
 			NN = normalize(normalize(bump.xyz) / 2.0 + normalize(N));
 		}
 		else
