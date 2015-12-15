@@ -1,13 +1,12 @@
 varying vec3 N;
-varying vec3 rawN;
 varying vec3 L;
 varying vec3 E;
 varying vec2 fTextureCoord;
+varying mat4 TBN;
 
 uniform vec4 materialAmbient, materialDiffuse, materialSpecular;
 uniform float materialShininess;
 uniform mat4 lightSource;
-uniform mat4 model;
 uniform bool emissive;
 uniform vec4 emissionColor;
 uniform float alphaOverride;
@@ -15,7 +14,6 @@ uniform bool useTexture;
 uniform sampler2D Tex;
 uniform bool useBumpMap;
 uniform sampler2D BumpTex;
-uniform mat4 normalRotation;
 
 void main()
 {
@@ -35,22 +33,14 @@ void main()
 		{
 			vec4 bump = texture2D(BumpTex, fTextureCoord);
 			bump = normalize(2.0*bump-1.0);
-
-			vec3 up = vec3(0.0, 0.0, 1.0);
-			vec3 v = cross(rawN, up);
-			float s = max(0.5, length(v));
-			float c = dot(rawN, up);
-			mat3 skew = mat3(vec3(0.0, v.z, -v.y), vec3(-v.z, 0.0, v.x), vec3(v.y, -v.x, 0.0));
-			mat3 R = mat3(1.0) + skew + (skew * skew) * ((1.0 - c) / s*s);
-
-			bump.xyz = R * bump.xyz;
-			bump = normalRotation * bump;
-			//NN = bump.xyz;
-			NN = normalize(normalize(bump.xyz) / 2.0 + normalize(N));
+			//bump = inverse(TBN) * bump;
+			//NN = normalize(bump.xyz);
+			NN = normalize(normalize(bump.xyz) + normalize(N));
 		}
 		else
 		{
 			NN = normalize(N);
+			//NN = vec3(0.0, 0.0, 1.0);
 		}
 
 		vec3 EE = normalize(E);
@@ -78,10 +68,10 @@ void main()
 		vec4 specularProduct = objectSpecular;*/
 
 		float distance;
-		if (lightSource[3].w == 0.0)
+		//if (lightSource[3].w == 0.0)
 			distance = 1.0;
-		else
-			distance = pow(length(L), 2.0);
+		//else
+		//	distance = pow(length(L), 2.0);
 
 		vec3 LL = normalize(L);
 		float LdotN = dot(LL, NN);
