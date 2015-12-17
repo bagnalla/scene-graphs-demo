@@ -74,7 +74,8 @@ void main()
 
 		float lightDepth = vecToDepth(lightDir.xyz);
 		lightDir = cubeMapPerspective * lightDir;
-		shadowMapLightDirDepth = vec4(lightDir.xyz, lightDepth - 0.0001);
+		//shadowMapLightDirDepth = vec4(lightDir.xyz, lightDepth - 0.0001 * length(lightDir));
+		shadowMapLightDirDepth = vec4(lightDir.xyz, lightDepth - 0.001);
 
 		if (useCubeMap)
 		{
