@@ -17,17 +17,15 @@ uniform vec4 emissionColor;
 uniform float alphaOverride;
 uniform bool useTexture;
 uniform sampler2D Tex;
+uniform bool textureBlend;
 uniform bool useBumpMap;
 uniform sampler2D BumpTex;
 uniform bool useCubeMap;
 uniform samplerCube cubeMap;
-
 uniform bool useShadowMap;
 uniform samplerCubeShadow shadowMap;
 
 uniform bool onlyDepth;
-
-uniform mat4 cubeMapPerspective;
 
 void main()
 {
@@ -44,9 +42,7 @@ void main()
 		}
 		else if (useCubeMap)
 		{
-			vec3 cubeCoord = (cubeMapPerspective * (vPositionWorld - model[3])).xyz;
-			gl_FragColor = texture(cubeMap, cubeCoord);
-			//gl_FragColor = texture(cubeMap, cubeMapCoord);
+			gl_FragColor = texture(cubeMap, cubeMapCoord);
 			//gl_FragColor.xyz = vec3(pow(gl_FragColor.x, 64.0), pow(gl_FragColor.y, 64.0), pow(gl_FragColor.z, 64.0)); 
 		}
 		else
@@ -71,27 +67,34 @@ void main()
 		if (useTexture)
 		{
 			vec4 texColor = texture2D(Tex, fTextureCoord);
-			objectAmbient = mix(materialAmbient, texColor, 0.5);
-			objectDiffuse = mix(materialDiffuse, texColor, 0.5);
-			objectSpecular = mix(materialSpecular, texColor, 0.5);
+			if (textureBlend)
+			{
+				objectAmbient = mix(materialAmbient, texColor, 0.5);
+				objectDiffuse = mix(materialDiffuse, texColor, 0.5);
+				objectSpecular = mix(materialSpecular, texColor, 0.5);
+			}
+			else
+			{
+				objectAmbient = texColor;
+				objectDiffuse = texColor;
+				objectSpecular = texColor;
+			}
 		}
 		else if (useCubeMap)
 		{
-			//vec3 cubeCoord = (vPositionWorld - model[3]).xyz;
-
 			// REFLECTIVE STUFF
-			//vec3 v = normalize((vPositionWorld - cameraPosition).xyz);
-			//vec3 cubeCoord = v - 2 * dot(v, NN) * NN;
-
-			vec3 cubeCoord = (cubeMapPerspective * (vPositionWorld - model[3])).xyz;
+			vec3 v = normalize((vPositionWorld - cameraPosition).xyz);
+			vec3 cubeCoord = v - 2 * dot(v, NN) * NN;
 			vec4 texColor = texture(cubeMap, cubeCoord);
+
+			//vec4 texColor = texture(cubeMap, cubeMapCoord);
 			objectAmbient = mix(materialAmbient, texColor, 0.5);
 			objectDiffuse = mix(materialDiffuse, texColor, 0.5);
 			objectSpecular = mix(materialSpecular, texColor, 0.5);
 
-			/*objectAmbient.xyz = vec3(pow(texColor.x, 64.0), pow(texColor.y, 64.0), pow(texColor.z, 64.0)); 
-			objectDiffuse.xyz = vec3(pow(texColor.x, 64.0), pow(texColor.y, 64.0), pow(texColor.z, 64.0)); 
-			objectSpecular.xyz = vec3(pow(texColor.x, 64.0), pow(texColor.y, 64.0), pow(texColor.z, 64.0));*/
+			//objectAmbient.xyz = vec3(pow(texColor.x, 64.0), pow(texColor.y, 64.0), pow(texColor.z, 64.0)); 
+			//objectDiffuse.xyz = vec3(pow(texColor.x, 64.0), pow(texColor.y, 64.0), pow(texColor.z, 64.0)); 
+			//objectSpecular.xyz = vec3(pow(texColor.x, 64.0), pow(texColor.y, 64.0), pow(texColor.z, 64.0));
 		}
 		else
 		{
@@ -103,9 +106,6 @@ void main()
 		vec4 ambientProduct = objectAmbient * lightSource[0];
 		vec4 diffuseProduct = objectDiffuse * lightSource[1];
 		vec4 specularProduct = objectSpecular * lightSource[2];
-		/*vec4 ambientProduct = objectAmbient;
-		vec4 diffuseProduct = objectDiffuse;
-		vec4 specularProduct = objectSpecular;*/
 
 		float distance;
 		//if (lightSource[3].w == 0.0)
@@ -136,13 +136,7 @@ void main()
 
 		if (useShadowMap)
 		{
-			//vec3 lightL = (lightPerspective * vec4(-L, 0.0)).xyz;
-			//vec3 lightL = -L;
-
-			//vec3 lightDir = shadowMapLightDirDepth.xyz;
-			//float lightDepth = shadowMapLightDirDepth.w;
-			//float shadowVal = texture(shadowMap, vec4(lightL, LDepth - 0.0001));
-			float shadowVal = texture(shadowMap, shadowMapLightDirDepth);
+			float shadowVal = shadowCube(shadowMap, shadowMapLightDirDepth);
 			diffuse = diffuse * shadowVal;
 			specular = specular * shadowVal;
 		}

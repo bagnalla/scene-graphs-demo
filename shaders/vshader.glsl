@@ -22,7 +22,6 @@ uniform mat4 projection;
 uniform bool emissive;
 
 uniform vec2 shadowZRange;
-uniform mat4 cubeMapPerspective;
 
 uniform bool onlyDepth;
 
@@ -71,17 +70,14 @@ void main()
 			lightDir = vPositionWorld - lightSource[3];
 
 		L = -lightDir.xyz;
-
+		
 		float lightDepth = vecToDepth(lightDir.xyz);
-		lightDir = cubeMapPerspective * lightDir;
-		//shadowMapLightDirDepth = vec4(lightDir.xyz, lightDepth - 0.0001 * length(lightDir));
 		shadowMapLightDirDepth = vec4(lightDir.xyz, lightDepth - 0.001);
+	}
 
-		if (useCubeMap)
-		{
-			//cubeMapCoord = (cubeMapPerspective * (vPositionWorld - model[3])).xyz;
-			cubeMapCoord = ((vPositionWorld - model[3])).xyz;
-		}
+	if (useCubeMap)
+	{
+		cubeMapCoord = (vPositionWorld - model[3]).xyz;
 	}
 
 	// compute gl_Position
