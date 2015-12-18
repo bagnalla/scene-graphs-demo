@@ -73,7 +73,9 @@ void main()
 		if (useShadowMap)
 		{
 			float lightDepth = vecToDepth(lightDir.xyz);
-			shadowMapLightDirDepth = vec4(lightDir.xyz, lightDepth - 0.001);
+			shadowMapLightDirDepth = vec4(lightDir.xyz, lightDepth - 0.0002);
+			//shadowMapLightDirDepth = vec4(lightDir.xyz, lightDepth - 0.0003 * sqrt(length(lightDir)));
+			//shadowMapLightDirDepth = vec4(lightDir.xyz, lightDepth);
 		}
 	}
 
