@@ -21,6 +21,7 @@ uniform mat4 camera;
 uniform mat4 projection;
 uniform bool emissive;
 
+uniform bool useShadowMap;
 uniform vec2 shadowZRange;
 
 uniform bool onlyDepth;
@@ -63,16 +64,17 @@ void main()
 
 		vec4 lightDir;
 		if (lightSource[3].w == 0.0)
-			//L = (lightSource[3].xyz);
 			lightDir = -lightSource[3];
 		else
-			//L = (lightSource[3] - vPositionWorld).xyz;
 			lightDir = vPositionWorld - lightSource[3];
 
 		L = -lightDir.xyz;
 		
-		float lightDepth = vecToDepth(lightDir.xyz);
-		shadowMapLightDirDepth = vec4(lightDir.xyz, lightDepth - 0.001);
+		if (useShadowMap)
+		{
+			float lightDepth = vecToDepth(lightDir.xyz);
+			shadowMapLightDirDepth = vec4(lightDir.xyz, lightDepth - 0.001);
+		}
 	}
 
 	if (useCubeMap)

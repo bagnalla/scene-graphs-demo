@@ -64,9 +64,24 @@ void main()
 		vec3 EE = normalize(E);
 
 		vec4 objectAmbient, objectDiffuse, objectSpecular;
-		if (useTexture)
+		vec4 texColor;
+		if (useTexture || useCubeMap)
 		{
-			vec4 texColor = texture2D(Tex, fTextureCoord);
+			if (useTexture)
+			{
+				texColor = texture2D(Tex, fTextureCoord);
+			}
+			else if (useCubeMap)
+			{
+				// reflective
+				vec3 v = normalize((vPositionWorld - cameraPosition).xyz);
+				vec3 cubeCoord = v - 2 * dot(v, NN) * NN;
+				texColor = texture(cubeMap, cubeCoord);
+
+				// non reflective
+				//vec4 texColor = texture(cubeMap, cubeMapCoord);
+			}
+
 			if (textureBlend)
 			{
 				objectAmbient = mix(materialAmbient, texColor, 0.5);
@@ -79,22 +94,6 @@ void main()
 				objectDiffuse = texColor;
 				objectSpecular = texColor;
 			}
-		}
-		else if (useCubeMap)
-		{
-			// REFLECTIVE STUFF
-			vec3 v = normalize((vPositionWorld - cameraPosition).xyz);
-			vec3 cubeCoord = v - 2 * dot(v, NN) * NN;
-			vec4 texColor = texture(cubeMap, cubeCoord);
-
-			//vec4 texColor = texture(cubeMap, cubeMapCoord);
-			objectAmbient = mix(materialAmbient, texColor, 0.5);
-			objectDiffuse = mix(materialDiffuse, texColor, 0.5);
-			objectSpecular = mix(materialSpecular, texColor, 0.5);
-
-			//objectAmbient.xyz = vec3(pow(texColor.x, 64.0), pow(texColor.y, 64.0), pow(texColor.z, 64.0)); 
-			//objectDiffuse.xyz = vec3(pow(texColor.x, 64.0), pow(texColor.y, 64.0), pow(texColor.z, 64.0)); 
-			//objectSpecular.xyz = vec3(pow(texColor.x, 64.0), pow(texColor.y, 64.0), pow(texColor.z, 64.0));
 		}
 		else
 		{
@@ -136,7 +135,7 @@ void main()
 
 		if (useShadowMap)
 		{
-			float shadowVal = shadowCube(shadowMap, shadowMapLightDirDepth);
+			float shadowVal = shadowCube(shadowMap, shadowMapLightDirDepth).x;
 			diffuse = diffuse * shadowVal;
 			specular = specular * shadowVal;
 		}
