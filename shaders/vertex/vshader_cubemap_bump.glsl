@@ -1,10 +1,13 @@
 attribute vec4 vPosition;
 attribute vec4 vNormal;
+attribute vec4 vTangent;
+attribute vec4 vBinormal;
 
 varying vec3 N;
 varying vec3 L;
 varying vec3 E;
 varying vec3 cubeMapCoord;
+varying mat4 inverseTBN;
 varying vec4 shadowCubeMapLightDirDepth;
 
 uniform mat4 model;
@@ -33,6 +36,8 @@ void main()
 {
 	// compute vPosition in world space
 	vec4 vPositionWorld = model * vPosition;
+	
+	inverseTBN = mat4(vTangent, vBinormal, vNormal, vec4(0.0, 0.0, 0.0, 0.0));
 	
 	// compute normal in world space
 	N = normalize((model * vNormal).xyz);
