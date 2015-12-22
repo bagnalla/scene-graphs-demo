@@ -21,6 +21,7 @@ void main()
 	bump = normalize(2.0*bump-1.0);
 	bump = model * inverseTBN * bump;
 	vec3 NN = normalize(normalize(bump.xyz) + normalize(N));
+	//vec3 NN = normalize(bump.xyz);
 
 	vec3 EE = normalize(E);
 
