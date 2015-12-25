@@ -64,8 +64,8 @@ void main()
 
 	if (shadowMode == 1)
 	{
-		vec3 coordDepth = vec3((vPositionLight.x + 1.0) / 2.0, (vPositionLight.y + 1.0) / 2.0, (vPositionLight.z + 1.0) / 2.0);
-		float shadowVal = shadow2D(shadowTex, shadowCoordDepth);
+		//vec3 coordDepth = vec3((vPositionLight.x + 1.0) / 2.0, (vPositionLight.y + 1.0) / 2.0, (vPositionLight.z + 1.0) / 2.0);
+		float shadowVal = shadow2D(shadowTex, shadowCoordDepth).x;
 		diffuse = diffuse * shadowVal;
 		specular = specular * shadowVal;
 	}

@@ -97,7 +97,7 @@ void main()
 		//vec3 posLight = (lightProjection * vPositionWorld).xyz;
 		//vec3 coordDepth = vec3((posLight.x + 1.0) / 2.0, (posLight.y + 1.0) / 2.0, (posLight.z + 1.0) / 2.0 * 0.90);
 		//float shadowVal = shadow2D(shadowTex, coordDepth);
-		float shadowVal = shadow2D(shadowTex, shadowCoordDepth);
+		float shadowVal = shadow2D(shadowTex, shadowCoordDepth).x;
 		diffuse = diffuse * shadowVal;
 		specular = specular * shadowVal;
 	}
