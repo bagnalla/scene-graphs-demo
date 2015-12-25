@@ -34,9 +34,9 @@ void main()
 	E = (cameraPosition - vPositionWorld).xyz;
 
 	if (lightSource[3].w == 0.0)
-		L = lightSource[3];
+		L = lightSource[3].xyz;
 	else
-		L = lightSource[3] - vPositionWorld;
+		L = (lightSource[3] - vPositionWorld).xyz;
 
 	if (shadowMode == 1)
 	{
