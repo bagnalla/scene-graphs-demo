@@ -9,28 +9,15 @@ varying vec3 L;
 varying vec3 E;
 varying vec2 fTextureCoord;
 varying mat4 inverseTBN;
-varying vec4 shadowCubeMapLightDirDepth;
+varying vec3 shadowCoordDepth;
 
 uniform mat4 model;
 uniform mat4 camera;
 uniform mat4 projection;
 uniform mat4 lightSource;
 uniform vec4 cameraPosition;
-uniform vec2 shadowZRange;
-uniform bool useShadowCubeMap;
-
-// http://stackoverflow.com/questions/21293726/opengl-project-shadow-cubemap-onto-scene
-float vecToDepth (vec3 Vec)
-{
-  vec3  AbsVec     = abs (Vec);
-  float LocalZcomp = max (AbsVec.x, max (AbsVec.y, AbsVec.z));
-
-  float n = shadowZRange [0]; // Near plane when the shadow map was built
-  float f = shadowZRange [1]; // Far plane when the shadow map was built
-
-  float NormZComp = (f+n) / (f-n) - (2.0*f*n)/(f-n)/LocalZcomp;
-  return (NormZComp + 1.0) * 0.5;
-}
+uniform int shadowMode;
+uniform mat4 lightProjection;
 
 void main()
 {
@@ -45,18 +32,17 @@ void main()
 	// compute eye direction
 	E = (cameraPosition - vPositionWorld).xyz;
 
-	vec4 lightDir;
 	if (lightSource[3].w == 0.0)
-		lightDir = -lightSource[3];
+		L = lightSource[3];
 	else
-		lightDir = vPositionWorld - lightSource[3];
+		L = lightSource[3] - vPositionWorld;
 
-	L = -lightDir.xyz;
-	
-	if (useShadowCubeMap)
+	if (shadowMode == 1)
 	{
-		float lightDepth = vecToDepth(lightDir.xyz);
-		shadowCubeMapLightDirDepth = vec4(lightDir.xyz, lightDepth - 0.0002);
+		vec3 vPositionLight = (lightProjection * vPositionWorld).xyz;
+		float bias = 0.005*tan(acos(dot(normalize(N), normalize(L))));
+		bias = clamp(bias, 0, 0.01);
+		shadowCoordDepth = vec3((vPositionLight.x + 1.0) / 2.0, (vPositionLight.y + 1.0) / 2.0, (vPositionLight.z + 1.0) / 2.0 - bias);
 	}
 	
 	// pass texture coordinates to be interpolated over fragments
