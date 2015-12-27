@@ -21,6 +21,7 @@ uniform int shadowMode;
 uniform mat4 lightProjection;
 uniform float groundCoordZ;
 uniform float terrainScaleZ;
+uniform float terrainMaxHeight;
 
 void main()
 {
@@ -51,7 +52,7 @@ void main()
 	// pass texture coordinates to be interpolated over fragments
 	fTextureCoord = vec2((vTextureCoordinate.x), (vTextureCoordinate.y));
 	
-	height = (vPosition.z - groundCoordZ) / (256.0 * terrainScaleZ);
+	height = (vPosition.z - groundCoordZ) / (terrainMaxHeight * terrainScaleZ);
 	
 	// compute gl_Position
 	gl_Position = projection * camera * vPositionWorld;
